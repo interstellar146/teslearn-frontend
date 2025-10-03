@@ -1,151 +1,155 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookUp, BrainCircuit, Flame } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
+import { Edit, School, Flame, Star, Award, BookOpen, ThumbsUp } from 'lucide-react';
+import Image from 'next/image';
 
-// MOCK DATA: In a real app, this would be fetched for the logged-in user
+// --- MOCK DATA ---
 const userData = {
   fullName: 'Sophia Clark',
   email: 'sophia.clark@state.edu',
-  university: 'State University',
-  major: 'Computer Science',
-  avatarUrl: 'https://i.pravatar.cc/150?u=sophia', // Placeholder image
-  joinYear: 2021,
+  avatarUrl: 'https://i.pravatar.cc/150?u=sophia-clark',
+  interestedTopics: 'Quantum Physics, Machine Learning, Renaissance Art',
   stats: {
-    totalStudyHours: 250,
     topicsMastered: 15,
-    dayStreak: 30,
+    currentStreak: 30,
   },
+  badges: [
+    { name: 'Perfect Score', icon: <Star className="w-8 h-8" />, color: 'text-yellow-500 bg-yellow-400/20' },
+    { name: '100 Hours', icon: <Award className="w-8 h-8" />, color: 'text-green-500 bg-green-400/20' },
+    { name: 'Bookworm', icon: <BookOpen className="w-8 h-8" />, color: 'text-blue-500 bg-blue-400/20' },
+    { name: 'Streak Master', icon: <ThumbsUp className="w-8 h-8" />, color: 'text-red-500 bg-red-400/20' },
+  ]
 };
 
-export default function ProfilePage() {
-  const [formState, setFormState] = useState({
-    fullName: userData.fullName,
-    email: userData.email,
-    university: userData.university,
-    major: userData.major,
-  });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setFormState(prevState => ({ ...prevState, [id]: value }));
-  };
+// --- Sub-components for better organization ---
 
-  const handleSaveChanges = () => {
-    // In a real app, you would send this formState to your API
-    console.log('Saving data:', formState);
-    alert('Profile saved!'); // Replace with a toast notification in a real app
-  };
-
-  return (
-    <div className="p-4 sm:p-6 md:p-8">
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">Your Profile</h1>
-          <p className="text-gray-500 mt-1">Manage your personal information, preferences, and notification settings.</p>
-        </header>
-
-        <Card className="mb-8 overflow-hidden">
-          <CardContent className="flex items-center gap-6 p-6">
-            <Avatar className="w-20 h-20 border">
-              <AvatarImage src={userData.avatarUrl} alt={userData.fullName} />
-              <AvatarFallback>{userData.fullName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-            </Avatar>
-            <div>
-              <h2 className="text-2xl font-bold">{userData.fullName}</h2>
-              <p className="text-muted-foreground">{`Student at ${userData.university}`}</p>
-              <p className="text-sm text-muted-foreground/80">{`Joined ${userData.joinYear}`}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="goals">Goals</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="overview" className="mt-6">
-            <div className="space-y-8">
-              <section>
-                <h3 className="text-xl font-semibold mb-4 text-gray-700">Learning Journey</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <BookUp className="w-8 h-8 text-blue-500" />
-                      <div>
-                        <p className="text-2xl font-bold">{userData.stats.totalStudyHours}</p>
-                        <p className="text-sm text-muted-foreground">Total Study Hours</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
-                       <BrainCircuit className="w-8 h-8 text-green-500" />
-                       <div>
-                        <p className="text-2xl font-bold">{userData.stats.topicsMastered}</p>
-                        <p className="text-sm text-muted-foreground">Topics Mastered</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <Flame className="w-8 h-8 text-orange-500" />
-                      <div>
-                        <p className="text-2xl font-bold">{userData.stats.dayStreak}</p>
-                        <p className="text-sm text-muted-foreground">Day Streak</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </section>
-
-              <section>
-                <h3 className="text-xl font-semibold mb-4 text-gray-700">Personal Information</h3>
-                <Card>
-                  <CardContent className="p-6 space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="fullName">Full Name</Label>
-                        <Input id="fullName" value={formState.fullName} onChange={handleInputChange} />
-                      </div>
-                      <div className="space-y-2">
+const AccountSettings = () => {
+    const [name, setName] = useState(userData.fullName);
+    const [email, setEmail] = useState(userData.email);
+    return (
+         <Card className="p-8">
+            <h2 className="text-2xl font-bold mb-6">Account Settings</h2>
+            <form className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <Label htmlFor="full-name">Full Name</Label>
+                        <Input id="full-name" type="text" value={name} onChange={(e) => setName(e.target.value)} className="mt-2" />
+                    </div>
+                    <div>
                         <Label htmlFor="email">Email address</Label>
-                        <Input id="email" type="email" value={formState.email} onChange={handleInputChange} />
-                      </div>
+                        <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-2" />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="university">University</Label>
-                        <Input id="university" value={formState.university} onChange={handleInputChange} />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="major">Major</Label>
-                        <Input id="major" value={formState.major} onChange={handleInputChange} />
-                      </div>
+                </div>
+                <div>
+                    <Label>Password</Label>
+                    <Button variant="link" className="p-0 h-auto mt-2 text-primary">Change Password</Button>
+                </div>
+                <div className="flex justify-end pt-4">
+                    <Button type="submit">Save Changes</Button>
+                </div>
+            </form>
+        </Card>
+    );
+};
+
+const LearningPreferences = () => {
+    const [topics, setTopics] = useState(userData.interestedTopics);
+    return (
+        <Card className="p-8">
+            <h2 className="text-2xl font-bold mb-6">Learning Preferences</h2>
+            <form className="space-y-6">
+                <div>
+                    <Label htmlFor="topics">Interested Topics</Label>
+                    <Input id="topics" type="text" value={topics} onChange={(e) => setTopics(e.target.value)} className="mt-2" />
+                </div>
+                <div>
+                    <Label>Learning Modes</Label>
+                    <div className="mt-2 space-y-3">
+                        <div className="flex items-center gap-x-3"><Checkbox id="visual" defaultChecked /><Label htmlFor="visual">Visual (Videos, Infographics)</Label></div>
+                        <div className="flex items-center gap-x-3"><Checkbox id="auditory" /><Label htmlFor="auditory">Auditory (Podcasts, Lectures)</Label></div>
+                        <div className="flex items-center gap-x-3"><Checkbox id="reading" defaultChecked /><Label htmlFor="reading">Reading (Articles, Books)</Label></div>
+                        <div className="flex items-center gap-x-3"><Checkbox id="interactive" defaultChecked /><Label htmlFor="interactive">Interactive (Quizzes, Simulations)</Label></div>
                     </div>
-                     <div className="flex justify-end pt-4">
-                        <Button onClick={handleSaveChanges}>Save Changes</Button>
-                     </div>
-                  </CardContent>
-                </Card>
-              </section>
+                </div>
+                <div className="flex justify-end pt-4">
+                    <Button type="submit">Save Preferences</Button>
+                </div>
+            </form>
+        </Card>
+    );
+};
+
+
+export default function ProfilePage() {
+  return (
+    <main className="flex-1 bg-gray-50/50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+            <div className="flex flex-col md:flex-row items-center justify-between mb-12">
+                <div className="flex items-center gap-6">
+                    <div className="relative">
+                        <Avatar className="h-32 w-32 ring-4 ring-primary/30">
+                            <AvatarImage src={userData.avatarUrl} alt={userData.fullName} />
+                            <AvatarFallback>{userData.fullName.slice(0, 2)}</AvatarFallback>
+                        </Avatar>
+                        <Button size="icon" className="absolute bottom-1 right-1 h-8 w-8 rounded-full">
+                            <Edit className="h-4 w-4" />
+                        </Button>
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-bold">{userData.fullName}</h1>
+                        <p className="mt-1 text-lg text-gray-600">{userData.email}</p>
+                    </div>
+                </div>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="settings" className="mt-6 text-center text-muted-foreground"><p>User settings will be managed here.</p></TabsContent>
-          <TabsContent value="goals" className="mt-6 text-center text-muted-foreground"><p>Learning goals and targets will be set here.</p></TabsContent>
-          <TabsContent value="notifications" className="mt-6 text-center text-muted-foreground"><p>Notification preferences will be configured here.</p></TabsContent>
-        </Tabs>
-      </div>
-    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div className="lg:col-span-2 space-y-10">
+                    <AccountSettings />
+                    <LearningPreferences />
+                </div>
+                <div className="space-y-10">
+                    <Card className="p-8">
+                        <h2 className="text-2xl font-bold mb-6">Progress & Achievements</h2>
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary"><School className="text-3xl" /></div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Mastery Summary</p>
+                                    <p className="text-xl font-bold">{userData.stats.topicsMastered} Topics Mastered</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary"><Flame className="text-3xl" /></div>
+                                <div>
+                                    <p className="text-sm text-gray-500">Current Streak</p>
+                                    <p className="text-xl font-bold">{userData.stats.currentStreak} Days</p>
+                                </div>
+                            </div>
+                        </div>
+                        <h3 className="text-xl font-bold mt-8 mb-4">Badges</h3>
+                        <div className="grid grid-cols-3 gap-4">
+                            {userData.badges.map(badge => (
+                                <div key={badge.name} className="flex flex-col items-center text-center">
+                                    <div className={`flex h-16 w-16 items-center justify-center rounded-full ${badge.color}`}>
+                                        {badge.icon}
+                                    </div>
+                                    <p className="text-sm mt-2 font-medium">{badge.name}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </Card>
+                </div>
+            </div>
+        </div>
+    </main>
   );
 }
+

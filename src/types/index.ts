@@ -10,12 +10,23 @@ export type User = {
 
 export type StudySession = {
   id: string;
-  topic: string;
-  subject: string;
   date: Date;
+  subject: string;
+  topic: string;
   time: string;
   isCompleted: boolean;
+  iconBg: string;      // For the background color of the icon
+  iconColor: string;   // For the color of the icon itself
+  content?: {          // Optional: For AI-generated content
+    videoUrl?: string;
+    notes?: string;
+    flashcards?: { id: number; front: string; back: string }[];
+    quiz?: {
+      questions: { id: number; text: string; options: string[]; answer: string }[];
+    };
+  };
 };
+
 
 export type QuizQuestion = {
   id: number;

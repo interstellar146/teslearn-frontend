@@ -8,27 +8,30 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PlusCircle } from 'lucide-react';
 
-interface AddSessionDialogProps {
-  onAddSession: (topic: string, time: string) => void;
-}
+// Define the type for the props, now expecting a function that accepts all three arguments.
+type AddSessionDialogProps = {
+  onAddSession: (subject: string, topic: string, time: string) => void;
+};
 
 export function AddSessionDialog({ onAddSession }: AddSessionDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [topic, setTopic] = useState('');
+  const [subject, setSubject] = useState(''); // Add state for the subject
   const [time, setTime] = useState('');
 
   const handleSubmit = () => {
-    if (topic && time) {
-      onAddSession(topic, time);
+    // Ensure all three fields are filled before submitting
+    if (topic && time && subject) {
+      onAddSession(subject, topic, time); // Pass all three arguments
       setIsOpen(false);
+      // Reset all fields
       setTopic('');
+      setSubject('');
       setTime('');
     }
   };
@@ -36,41 +39,47 @@ export function AddSessionDialog({ onAddSession }: AddSessionDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline"><PlusCircle className="mr-2 h-4 w-4" /> Add Session</Button>
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" /> Add Session
+        </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Add New Study Session</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="topic" className="text-right">Topic</Label>
+        <div className="space-y-4 py-4">
+          {/* Add an Input field for the subject */}
+          <div className="space-y-2">
+            <Label htmlFor="subject">Subject</Label>
+            <Input
+              id="subject"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="e.g., Math"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="topic">Topic</Label>
             <Input
               id="topic"
               value={topic}
-              onChange={e => setTopic(e.target.value)}
-              placeholder="e.g., Quantum Physics"
-              className="col-span-3"
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="e.g., Calculus Review"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="time" className="text-right">Time</Label>
+          <div className="space-y-2">
+            <Label htmlFor="time">Time</Label>
             <Input
               id="time"
               value={time}
-              onChange={e => setTime(e.target.value)}
-              placeholder="e.g., 2:00 PM - 4:00 PM"
-              className="col-span-3"
+              onChange={(e) => setTime(e.target.value)}
+              placeholder="e.g., 10:00 AM - 12:00 PM"
             />
           </div>
         </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">Cancel</Button>
-          </DialogClose>
-          <Button type="submit" onClick={handleSubmit}>Add to Schedule</Button>
-        </DialogFooter>
+        <Button onClick={handleSubmit}>Add to Schedule</Button>
       </DialogContent>
     </Dialog>
   );
 }
+
