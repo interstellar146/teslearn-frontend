@@ -129,10 +129,13 @@ export default function LandingPageV2() {
             </nav>
             <div className="flex items-center gap-2">
               <Button asChild variant="outline" className="rounded-full border-2 border-primary text-primary hover:bg-primary/10 hover:text-primary px-5 py-2.5">
-                <Link href="/login">Log In</Link>
+                <Link href="/auth/login">Log In</Link>
               </Button>
               <Button asChild className="px-6 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white shadow-lg hover:scale-105 transition-transform">
                 <Link href="/dashboard">Get Started</Link>
+              </Button>
+              <Button asChild className="px-6 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white shadow-lg hover:scale-105 transition-transform">
+                <Link href="/profile">Profile</Link>
               </Button>
             </div>
           </div>
