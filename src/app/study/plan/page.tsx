@@ -43,10 +43,10 @@ const studyPerformance = Array.from({ length: 365 }).map((_, i) => {
 const getHeatmapColor = (studied: number, target: number): string => {
   if (studied === 0) return 'bg-gray-200';
   const ratio = studied / target;
-  if (ratio < 0.5) return 'bg-red-300';
-  if (ratio < 1) return 'bg-yellow-300';
-  if (ratio < 1.5) return 'bg-green-300';
-  return 'bg-green-500';
+  if (ratio < 0.5) return 'bg-blue-200';   // Less than 50% of target
+  if (ratio < 1) return 'bg-blue-400';    // 50% to 99% of target
+  if (ratio < 1.5) return 'bg-blue-600';    // 100% to 149% of target
+  return 'bg-blue-800';
 };
 
 // Draggable Item Component
