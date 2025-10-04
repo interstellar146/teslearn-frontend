@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 // 2. Update the metadata for our app
 export const metadata: Metadata = {
-  title: "TesLearn - Dashboard",
+  title: "Teslearn - Dashboard",
   description: "Your AI-powered personalized learning platform.",
 };
 

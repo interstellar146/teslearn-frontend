@@ -1,73 +1,47 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Card, CardContent } from '@/components/ui/card';
-import { BrainCircuit } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import { useSearchParams, useParams } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from '@/components/ui/label';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-// --- FIX APPLIED HERE ---
-// We rename the import to avoid a name collision with the browser's default 'Image' object.
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChevronLeft, ChevronRight, PlayCircle, Circle, Flame, Trophy, Mic, MessageSquare, Volume2, FileQuestion } from 'lucide-react';
 import NextImage from 'next/image';
+import { cn } from '@/lib/utils';
+import { studySetData, StudySetContent, Flashcard, QuizQuestion } from '@/lib/mock-data';
+import Link from 'next/link';
 
-// --- MOCK DATA: Rich data from your new example ---
-const sessionData = {
-  id: '3',
-  title: 'Machine Learning Basics',
-  courseProgress: 60,
-  videoUrl: 'https://www.youtube.com/embed/KNAWp2S3w94',
-  notes: `
-    <h3 class="font-bold text-lg mb-2">Key Concepts</h3>
-    <ul class="list-disc pl-5 space-y-1">
-      <li><strong>Supervised Learning:</strong> Learning from labeled data (e.g., spam detection).</li>
-      <li><strong>Unsupervised Learning:</strong> Finding patterns in unlabeled data (e.g., customer segmentation).</li>
-      <li><strong>Model Training:</strong> The process of feeding an algorithm data to learn from.</li>
-    </ul>
-  `,
-  flashcards: [
-    { id: 1, front: 'What is Supervised Learning?', back: 'A type of machine learning where the model learns from data that has been manually labeled with the correct output.' },
-    { id: 2, front: 'What is Unsupervised Learning?', back: 'A type of machine learning that looks for previously undetected patterns in a data set with no pre-existing labels.' },
-  ],
-  quiz: {
-    questions: [
-      { id: 1, text: 'Which is an example of a classification task?', options: ['Predicting house prices', 'Identifying spam emails', 'Grouping customers'], answer: 'Identifying spam emails' },
-      { id: 2, text: 'What does "model training" involve?', options: ['Writing the code', 'Deploying to a server', 'Feeding data to an algorithm'], answer: 'Feeding data to an algorithm' },
-    ],
-  },
-};
+// --- View Components for Tabs ---
 
-
-// --- Sub-components for interactive views ---
-
-const VideoView = () => (
-    <div className="aspect-video bg-black rounded-lg overflow-hidden border">
-        <iframe width="100%" height="100%" src={sessionData.videoUrl} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+const VideoView = ({ video }: { video: StudySetContent['video'] }) => (
+  <div>
+    <div className="aspect-video rounded-lg overflow-hidden relative group border">
+       <iframe width="100%" height="100%" src={video.url} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
     </div>
+    <div className="mt-4">
+      <h3 className="text-lg font-bold">Video Description</h3>
+      <p className="text-slate-600 mt-2 text-sm leading-relaxed">{video.description}</p>
+    </div>
+  </div>
 );
 
-const NotesView = () => (
-    <Card className="p-8 h-full">
-        <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: sessionData.notes }} />
-    </Card>
-);
+const NotesView = ({ notes }: { notes: StudySetContent['notes'] }) => <Card className="p-6 min-h-[400px]"><div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: notes }} /></Card>;
 
-function FlashcardsView() {
+function FlashcardsView({ flashcards }: { flashcards: Flashcard[] }) {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const card = sessionData.flashcards[currentIndex];
+    const card = flashcards[currentIndex];
     const [isFlipped, setIsFlipped] = useState(false);
 
-    useEffect(() => {
-        setIsFlipped(false);
-    }, [currentIndex]);
+    useEffect(() => { setIsFlipped(false); }, [currentIndex]);
 
-    const goToNext = () => setCurrentIndex((prev) => (prev + 1) % sessionData.flashcards.length);
-    const goToPrev = () => setCurrentIndex((prev) => (prev - 1 + sessionData.flashcards.length) % sessionData.flashcards.length);
+    const goToNext = () => setCurrentIndex((prev) => (prev + 1) % flashcards.length);
+    const goToPrev = () => setCurrentIndex((prev) => (prev - 1 + flashcards.length) % flashcards.length);
 
     return (
-        <div>
+        <Card className="p-6 min-h-[400px] flex flex-col justify-between">
             <div className="w-full h-64 perspective-1000 cursor-pointer" onClick={() => setIsFlipped(!isFlipped)}>
                 <div className={`relative w-full h-full transform-style-3d transition-transform duration-500 ${isFlipped ? 'rotate-y-180' : ''}`}>
                     <div className="absolute w-full h-full backface-hidden flex items-center justify-center p-6 bg-white border rounded-lg shadow"><p className="text-xl font-semibold text-center">{card.front}</p></div>
@@ -76,130 +50,199 @@ function FlashcardsView() {
             </div>
             <div className="flex items-center justify-center mt-4 gap-4">
                 <Button variant="outline" onClick={goToPrev}><ChevronLeft className="w-4 h-4 mr-2"/> Prev</Button>
-                <p className="text-sm text-gray-500">{currentIndex + 1} / {sessionData.flashcards.length}</p>
+                <p className="text-sm text-gray-500">{currentIndex + 1} / {flashcards.length}</p>
                 <Button variant="outline" onClick={goToNext}>Next <ChevronRight className="w-4 h-4 ml-2"/></Button>
             </div>
-        </div>
+        </Card>
     );
 }
 
-function QuizView() {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const question = sessionData.quiz.questions[currentQuestionIndex];
-
-  return (
-    <Card className="p-8">
-        <div className="space-y-6">
-          <div>
-            <p className="text-sm text-muted-foreground">Mastery Progress</p>
-            <Progress value={((currentQuestionIndex) / sessionData.quiz.questions.length) * 100} className="w-full mt-1" />
-          </div>
-          <div>
-            <h4 className="font-bold text-xl mb-1">Question {currentQuestionIndex + 1} of {sessionData.quiz.questions.length}</h4>
-            <p className="text-lg">{question.text}</p>
-          </div>
-          <RadioGroup onValueChange={setSelectedAnswer} value={selectedAnswer || ''} className="space-y-3">
-            {question.options.map(option => (
-              <Label key={option} htmlFor={option} className="flex items-center space-x-3 p-4 border rounded-md has-[:checked]:bg-blue-50 has-[:checked]:border-primary cursor-pointer transition-colors">
-                <RadioGroupItem value={option} id={option} />
-                <span>{option}</span>
-              </Label>
-            ))}
-          </RadioGroup>
-          <Button disabled={!selectedAnswer} className="w-full">Submit Answer</Button>
-        </div>
+const LabView = ({ lab }: { lab: StudySetContent['virtualLab'] }) => (
+    <Card className="p-8 min-h-[400px]">
+        <h3 className="text-xl font-bold">{lab.title}</h3>
+        <p className="text-gray-600 mt-2">{lab.description}</p>
+        <div className="mt-4 p-4 bg-gray-100 rounded">
+            <p className="font-mono text-sm">{lab.task}</p>
+        </div>
     </Card>
-  );
+);
+
+function QuizView({ quiz }: { quiz: { questions: QuizQuestion[] } }) {
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+    const question = quiz.questions[currentQuestionIndex];
+
+    return (
+        <Card className="p-8">
+            <div className="space-y-6">
+                <div>
+                    <p className="text-sm text-muted-foreground">Mastery Progress</p>
+                    <Progress value={((currentQuestionIndex) / quiz.questions.length) * 100} className="w-full mt-1" />
+                </div>
+                <div>
+                    <h4 className="font-bold text-xl mb-1">Question {currentQuestionIndex + 1} of {quiz.questions.length}</h4>
+                    <p className="text-lg">{question.text}</p>
+                </div>
+                <RadioGroup onValueChange={setSelectedAnswer} value={selectedAnswer || ''} className="space-y-3">
+                    {question.options.map(option => (
+                        <Label key={option} htmlFor={option} className="flex items-center space-x-3 p-4 border rounded-md has-[:checked]:bg-blue-50 has-[:checked]:border-primary cursor-pointer transition-colors">
+                            <RadioGroupItem value={option} id={option} />
+                            <span>{option}</span>
+                        </Label>
+                    ))}
+                </RadioGroup>
+                <Button disabled={!selectedAnswer} className="w-full">Submit Answer</Button>
+            </div>
+        </Card>
+    );
 }
 
-const PodcastView = () => <Card className="p-8 h-full flex items-center justify-center text-lg">Podcast / Audio Recap</Card>;
-const VivaView = () => <Card className="p-8 h-full flex items-center justify-center text-lg">Viva / Tutor Me</Card>;
+const PodcastView = ({ podcast }: { podcast: StudySetContent['podcast'] }) => (
+    <Card className="p-8 min-h-[400px]">
+        <div className="flex flex-col items-center text-center">
+            <div className="p-4 bg-primary/10 rounded-full mb-4">
+                <Volume2 className="w-10 h-10 text-primary" />
+            </div>
+            <h3 className="text-xl font-bold">Audio Recap</h3>
+            <p className="text-gray-600 mt-2 max-w-md">{podcast.summary}</p>
+            <div className="w-full max-w-md mt-6 p-4 border rounded-lg">
+                <p className="text-sm text-gray-500">Audio player placeholder</p>
+            </div>
+        </div>
+    </Card>
+);
 
+const VivaView = ({ viva }: { viva: StudySetContent['viva'] }) => (
+    <Card className="p-8 min-h-[400px]">
+        <h3 className="text-xl font-bold mb-4">AI Viva Practice Questions</h3>
+        <ul className="space-y-3 list-decimal pl-5">
+            {viva.questions.map((question, index) => (
+                <li key={index} className="text-gray-700">{question}</li>
+            ))}
+        </ul>
+        <Button className="mt-6"><Mic className="mr-2 h-4 w-4" /> Start Practice Session</Button>
+    </Card>
+);
 
-// --- UPDATED Loading State Component ---
-const LoadingState = () => (
-    <div className="flex flex-col items-center justify-center h-[80vh] text-center">
-        {/* --- FIX APPLIED HERE: Use the renamed 'NextImage' component --- */}
-        <NextImage
-          src="/ai-generating.svg" // Assumes your SVG is named this in the 'public' folder
-          alt="AI is generating content"
-          width={300}
-          height={300}
-          className="animate-pulse-slow" // A subtle pulsing animation
-          priority
-        />
-        <h2 className="text-3xl font-bold mt-8">Our AI is crafting your lesson...</h2>
-        <p className="text-lg text-gray-500 mt-2">Personalizing content just for you. This might take a moment.</p>
-        <style jsx>{`
-            @keyframes pulse-slow {
-                0%, 100% {
-                    opacity: 1;
-                    transform: scale(1);
-                }
-                50% {
-                    opacity: 0.85;
-                    transform: scale(0.98);
-                }
-            }
-            .animate-pulse-slow {
-                animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-            }
-        `}</style>
-    </div>
+const MindmapView = ({ mindmap }: { mindmap: StudySetContent['mindmap'] }) => (
+     <Card className="p-8 min-h-[400px] flex items-center justify-center">
+        <p className="text-lg text-gray-500">Mindmap visualization will be implemented here.</p>
+    </Card>
 );
 
 
+// --- Main Study Hub Page ---
 export default function StudySetPage() {
   const searchParams = useSearchParams();
-  const view = searchParams.get('view') || 'notes';
+  const params = useParams();
+  
+  const sessionId = params.sessionId as string;
+  const sessionContent = studySetData.get(sessionId);
 
-  const [isLoading, setIsLoading] = useState(true);
+  const initialView = searchParams.get('view') || 'video';
+  const [activeTab, setActiveTab] = useState(initialView);
 
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, [view]);
+  useEffect(() => { setActiveTab(initialView); }, [initialView]);
 
-  const renderContent = () => {
-    if (isLoading) {
-      return <LoadingState />;
-    }
+  if (!sessionContent) {
+    return (
+        <main className="flex-grow w-full max-w-screen-2xl mx-auto grid place-items-center p-6">
+            <div className="text-center">
+                <h2 className="text-2xl font-bold">Study Set Not Found</h2>
+                <p className="text-gray-500 mt-2">Could not find materials for ID: "{sessionId}"</p>
+                <Button asChild className="mt-4"><Link href="/dashboard">Go to Dashboard</Link></Button>
+            </div>
+        </main>
+    );
+  }
 
-    switch (view) {
-      case 'video': return <VideoView />;
-      case 'notes': return <NotesView />;
-      case 'flashcards': return <FlashcardsView />;
-      case 'quiz': return <QuizView />;
-      case 'audio': return <PodcastView />;
-      case 'viva': return <VivaView />;
-      default: return <NotesView />;
-    }
-  };
+  const TABS = [
+    { value: "video", label: "Video" },
+    { value: "notes", label: "Notes" },
+    { value: "mindmap", label: "Mindmap" },
+    { value: "flashcards", label: "Flashcards" },
+    { value: "quiz", label: "Quiz" },
+    { value: "audio", label: "Podcast" },
+    { value: "viva", label: "Viva" },
+    { value: "lab", label: "Virtual Lab" },
+  ];
 
-  const getTitle = () => {
-    switch (view) {
-        case 'video': return "Video Lesson";
-        case 'notes': return "Notes & Materials";
-        case 'flashcards': return "Flashcards";
-        case 'quiz': return "Test & Quiz";
-        case 'audio': return "Podcast Recap";
-        case 'viva': return "AI Viva Practice";
-        default: return "Study Set";
-    }
+  // --- FIX APPLIED HERE ---
+  // Placeholder data for the right sidebar now has the correct structure.
+  const sidebarData = {
+      courseProgress: 60,
+      tableOfContents: [
+        { title: 'Introduction', status: 'completed' },
+        { title: 'Core Concepts', status: 'active' },
+        { title: 'Advanced Topics', status: 'incomplete' },
+      ],
+      gamification: { streak: 5, scratchCards: 2 }
   }
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 h-full flex flex-col">
-        <header className="mb-6">
-          <p className="text-primary font-semibold">Today's Objective</p>
-          <h1 className="text-4xl font-bold text-gray-900">{getTitle()}</h1>
-        </header>
-        <div className="flex-1">
-          {renderContent()}
-        </div>
-    </div>
+    <main className="flex-grow w-full max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
+      <div className="lg:col-span-2 flex flex-col gap-6">
+        <Card>
+          <CardHeader className="p-6">
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">{sessionId === 'dsa-arrays' ? 'Data Structures & Algorithms' : 'Maths - Calculus'}</h2>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-8 h-auto">
+                {TABS.map(tab => ( <TabsTrigger key={tab.value} value={tab.value}>{tab.label}</TabsTrigger> ))}
+              </TabsList>
+            </Tabs>
+          </CardHeader>
+          <CardContent className="p-6">
+             <Tabs value={activeTab}>
+                <TabsContent value="video"><VideoView video={sessionContent.video} /></TabsContent>
+                <TabsContent value="notes"><NotesView notes={sessionContent.notes} /></TabsContent>
+                <TabsContent value="mindmap"><MindmapView mindmap={sessionContent.mindmap} /></TabsContent>
+                <TabsContent value="flashcards"><FlashcardsView flashcards={sessionContent.flashcards} /></TabsContent>
+                <TabsContent value="quiz"><QuizView quiz={sessionContent.quiz} /></TabsContent>
+                <TabsContent value="audio"><PodcastView podcast={sessionContent.podcast} /></TabsContent>
+                <TabsContent value="viva"><VivaView viva={sessionContent.viva} /></TabsContent>
+                <TabsContent value="lab"><LabView lab={sessionContent.virtualLab} /></TabsContent>
+             </Tabs>
+          </CardContent>
+        </Card>
+        
+        <footer className="flex items-center justify-between bg-white rounded-lg p-4 shadow-sm">
+            <div className="flex items-center gap-4"><Button>Mark as Complete</Button><Button variant="outline">Reschedule</Button></div>
+            <div className="flex items-center gap-2"><Button variant="outline" size="icon"><ChevronLeft className="w-4 h-4" /></Button><Button variant="outline" size="icon"><ChevronRight className="w-4 h-4" /></Button></div>
+        </footer>
+      </div>
+
+      <aside className="flex flex-col gap-6">
+        <Card>
+            <CardHeader><h3 className="text-lg font-bold">Course Progress</h3></CardHeader>
+            <CardContent>
+                <div className="flex justify-between items-center mb-1"><span className="text-sm font-medium">Overall Progress</span><span className="text-sm font-bold text-primary">{sidebarData.courseProgress}%</span></div>
+                <Progress value={sidebarData.courseProgress} />
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader><h3 className="text-lg font-bold">Table of Contents</h3></CardHeader>
+            <CardContent>
+                <ul className="space-y-2">
+                    {sidebarData.tableOfContents.map(item => (
+                        <li key={item.title}>
+                            <a href="#" className={cn("flex items-center gap-3 p-2 rounded-md hover:bg-primary/10 group", item.status === 'active' && 'bg-primary/10')}>
+                                {item.status === 'completed' || item.status === 'active' ? <PlayCircle className="text-primary text-xl" /> : <Circle className="text-slate-400 group-hover:text-primary text-xl" />}
+                                <span className={cn("text-sm font-medium text-slate-700 group-hover:text-primary", item.status === 'active' && 'font-bold text-primary')}>{item.title}</span>
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader><h3 className="text-lg font-bold">Gamification</h3></CardHeader>
+            <CardContent className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col items-center justify-center p-4 bg-primary/10 rounded-lg text-center"><Flame className="text-primary text-3xl" /><span className="text-2xl font-bold mt-1">{sidebarData.gamification.streak}</span><span className="text-xs text-slate-500">Day Streak</span></div>
+                <div className="flex flex-col items-center justify-center p-4 bg-primary/10 rounded-lg text-center"><Trophy className="text-primary text-3xl" /><span className="text-2xl font-bold mt-1">{sidebarData.gamification.scratchCards}</span><span className="text-xs text-slate-500">Scratch Cards</span></div>
+            </CardContent>
+        </Card>
+      </aside>
+    </main>
   );
 }
 

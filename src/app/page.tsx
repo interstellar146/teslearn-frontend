@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 
+
+
 // --- Helper Components for this Page ---
 
 const FeatureCard = ({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) => (
@@ -73,7 +75,7 @@ const Footer = () => {
               <Sparkles className="h-10 w-10 text-primary" />
               <h1 className="text-3xl font-bold text-white" style={{ fontFamily: "'Fredoka One', cursive" }}>TesLearn</h1>
             </div>
-            <p className="text-base">The smartest way to learn, anything!</p>
+            <p className="text-base">Learn your way !</p>
           </div>
           <div>
             <h3 className="text-base font-bold text-white tracking-wider uppercase mb-4">Product</h3>
@@ -135,7 +137,7 @@ export default function LandingPageV2() {
                 <Link href="/dashboard">Get Started</Link>
               </Button>
               <Button asChild className="px-6 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white shadow-lg hover:scale-105 transition-transform">
-                <Link href="/profile">Profile</Link>
+                <Link href="/dashboard">Profile</Link>
               </Button>
             </div>
           </div>
